@@ -1,0 +1,44 @@
+.board-reloader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 12px 0;
+    padding-left: 15px;
+}
+
+.board-challenge-status-icon {
+    display: inline-block;
+    font-size: 1.5em;
+    width: 1.1em;
+    margin: -4px 0;
+    pointer-events: none; // fix antd tooltip mouseleave not firing glitch
+}
+
+.board-challenge-status-marginleft {
+    margin-left: .55em;
+}
+
+.board-challenge-status-tooltip {
+    pointer-events: none;
+
+    .ant-tooltip-inner {
+        padding: 4px 6px;
+    }
+
+    p {
+        font-size: .8em;
+        margin: 2px 0;
+        line-height: 1em;
+    }
+}
+
+.board-col-bold {
+    font-weight: bold;
+}
+
+.scoreboard {
+    .ant-table-row {
+        height: 3.2em;
+    }
+}
