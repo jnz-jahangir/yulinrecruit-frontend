@@ -10,13 +10,16 @@
 
     .portal-sidebar {
         flex: 0 0 390px;
+
         @media (max-width: @small-multi-row-breakpoint) {
             flex: 0 0 280px;
         }
     }
+
     .portal-main {
         flex: 1 1;
         margin-left: 18px;
+
         @media (max-width: @small-multi-row-breakpoint) {
             margin-left: 12px;
         }
@@ -28,6 +31,7 @@
         .portal-sidebar {
             margin-bottom: 24px;
         }
+
         .portal-main {
             margin-left: unset;
         }
@@ -63,6 +67,7 @@
     .portal-user-info-status {
         font-size: 1.1em;
     }
+
     .portal-user-info-cat {
         font-size: .85em;
     }
@@ -87,10 +92,12 @@
         background-color: darkgreen;
         padding-left: .25em;
     }
+
     &.trend-mark-down {
         background-color: darkred;
         padding-left: .25em;
     }
+
     &.trend-mark-keep {
         background-color: #555;
     }
@@ -122,6 +129,7 @@
             border-top-left-radius: @border-radius-base;
             border-top-right-radius: @border-radius-base;
         }
+
         &:last-child {
             border-bottom-left-radius: @border-radius-base;
             border-bottom-right-radius: @border-radius-base;
@@ -155,6 +163,7 @@
             }
         }
     }
+
     .portal-chall-header {
         background-color: #f0f0f0;
         font-weight: bold;
@@ -164,6 +173,7 @@
         padding-left: 8px;
         flex: 1 1;
     }
+
     .portal-chall-col-score {
         flex: 0 0 85px;
         padding-left: 2px;
@@ -203,6 +213,7 @@
 .challenge-body {
     h1 {
         margin-bottom: 0;
+
         small {
             margin-left: .75rem;
             opacity: .6;
@@ -210,11 +221,13 @@
             font-size: .85rem;
         }
     }
+
     .challenge-stat {
         font-size: small;
         margin-top: .25rem;
         margin-bottom: 0;
     }
+
     .challenge-action {
         font-weight: bold;
         margin-bottom: .5em;
@@ -248,4 +261,11 @@
         text-shadow: 0 0 3px black;
         font-family: Consolas, Courier, monospace;
     }
+}
+
+.card-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
 }

@@ -84,7 +84,7 @@ function UserProfileForm() {
                             <Input maxLength={20} showCount placeholder="（将显示在排行榜上）" {...input_style} />
                         </Form.Item>
                     }
-                    {info.user.profile.gender!==undefined &&
+                    {/* {info.user.profile.gender!==undefined &&
                         <Form.Item name="gender" label="性别">
                             <Radio.Group buttonStyle="solid">
                                 <Radio.Button value="male">男</Radio.Button>
@@ -92,7 +92,7 @@ function UserProfileForm() {
                                 <Radio.Button value="other">其他</Radio.Button>
                             </Radio.Group>
                         </Form.Item>
-                    }
+                    } */}
                     <Form.Item label="用户组" extra={`UID: #${info.user.id}`}>
                         <UserGroupTag>{info.user.group_disp}</UserGroupTag>
                         <UserBadges badges={info.user.badges} />
@@ -126,13 +126,13 @@ function UserProfileForm() {
                         </Form.Item>
                     }
                 </Form>
-                {info.user.group==='pku' && <>
+                {info.user.group==='newbie' && <>
                     <br />
-                    <Alert type="info" showIcon message={<>请正确填写以便赛后联系和颁奖，同时请加入选手 QQ 群 {QQ_GROUP}</>} />
+                    <Alert type="info" showIcon message={<>请正确填写以便赛后联系招新，同时请加入招新 QQ 群 {QQ_GROUP}</>} />
                 </>}
             </Card>
             <br />
-            <Card title="其他信息" {...card_style}>
+            {/* <Card title="其他信息" {...card_style}>
                 <Form name="other" {...form_style}>
                     {info.user.profile.comment!==undefined &&
                         <Form.Item name="comment" label="了解比赛的渠道">
@@ -140,7 +140,7 @@ function UserProfileForm() {
                         </Form.Item>
                     }
                 </Form>
-            </Card>
+            </Card> */}
             <br />
             <Form name="submit">
                 <Button type="primary" size="large" block htmlType="submit" disabled={!changed} ref={submit_btn}>

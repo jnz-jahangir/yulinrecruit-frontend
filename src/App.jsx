@@ -84,12 +84,12 @@ function BoardShell() {
                 selectedKeys={[name]} onSelect={(e)=>{nav(`/board/${e.key}`);}}
                 items={[
                     {
-                        key: 'score_pku',
+                        key: 'score_newbie',
                         icon: <FundOutlined />,
                         label: '新生排名',
                     },
                     {
-                        key: 'first_pku',
+                        key: 'first_newbie',
                         icon: <AimOutlined />,
                         label: '新生一血榜',
                     },
@@ -197,7 +197,7 @@ export const routes = [
         {path: '/game/:challenge?', element: <Game />},
 
         {path: '/board', element: <BoardShell />, children: [
-            {index: true, element: <Navigate to="/board/score_pku" replace />},
+            {index: true, element: <Navigate to="/board/score_newbie" replace />},
             {path: ':name', element: <BoardPage />}
         ]},
 

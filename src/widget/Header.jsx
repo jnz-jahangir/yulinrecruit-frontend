@@ -55,7 +55,7 @@ export function Header() {
 
                             {
                                 key: '/board',
-                                default_subview: '/score_pku',
+                                default_subview: '/score_newbie',
                                 icon: <CrownOutlined />,
                                 label: '排行榜',
                             },
