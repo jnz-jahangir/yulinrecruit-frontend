@@ -128,7 +128,7 @@ function UserProfileForm() {
                 </Form>
                 {info.user.group==='newbie' && <>
                     <br />
-                    <Alert type="info" showIcon message={<>请正确填写以便赛后联系招新，同时请加入招新 QQ 群 {QQ_GROUP}</>} />
+                    <Alert type="info" showIcon message={<>请正确填写以便赛后联系面试，同时请加入招新 QQ 群 {QQ_GROUP}</>} />
                 </>}
             </Card>
             <br />

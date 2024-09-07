@@ -1,6 +1,12 @@
 import {useEffect} from 'react';
 import {App} from 'antd';
-import {NotificationOutlined, CarryOutOutlined, RocketOutlined} from '@ant-design/icons';
+import {
+    NotificationOutlined, 
+    CarryOutOutlined, 
+    RocketOutlined, 
+    CloseCircleOutlined,
+    DashboardFilled, FlagOutlined
+} from '@ant-design/icons';
 
 import {WS_ROOT} from '../branding';
 
@@ -23,6 +29,18 @@ class PushClient {
         setTimeout(()=>{
             this.connect();
         }, PUSH_STARTUP_DELAY_MS);
+    }
+
+    static init() {
+        notification.config({
+            duration: 7,
+            placement: 'topRight',
+            maxCount: 4,
+            top: 70,
+            closeIcon: (
+                <CloseCircleOutlined/>
+            ),
+        });
     }
 
     handle_message(data) {
@@ -62,6 +80,20 @@ class PushClient {
                 icon: <RocketOutlined />,
                 message: '题目一血提醒',
                 description: `恭喜【${data.nickname}】在【${data.board_name}】中拿到了题目【${data.challenge}】的一血`,
+            });
+        } else if (data.type === 'passed_flag') {
+            this.app.notification.success({
+                ...notif_conf,
+                icon: <FlagOutlined/>,
+                message: 'Flag通过提醒',
+                description: `恭喜【${data.nickname}】拿到了题目【${data.challenge}】的【${data.flag}】的Flag`,
+            });
+        } else if (data.type === 'passed_challenge') {
+            this.app.notification.success({
+                ...notif_conf,
+                icon: <DashboardFilled/>,
+                message: '题目通过提醒',
+                description: `恭喜【${data.nickname}】在拿到了题目【${data.challenge}】的全部Flag`,
             });
         }
     }

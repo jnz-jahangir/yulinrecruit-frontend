@@ -236,7 +236,7 @@ function FlagInput({ do_reload_list, ch }) {
                         </Tooltip> :
                         '提交 Flag：'
                 }
-                placeholder="flag{...}"
+                placeholder="YulinSec{...}"
                 enterButton={<><FlagOutlined /> 提交</>}
                 onSearch={do_submit}
                 loading={loading}
@@ -260,7 +260,7 @@ function ChallengeBody({ ch }) {
         </>);
 
 
-    if (data.actions[0].type === "card") {
+    if (data.actions.length != 0 && data.actions[0].type === "card") {
         return (<>
             <TemplateStr name="challenge-desc">{data.desc}</TemplateStr>
             <br />
