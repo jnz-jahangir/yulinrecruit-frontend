@@ -192,13 +192,13 @@ function ChallengeAction({ action, ch, idx }) {
 
     useEffect(() => {
         if (action.type === 'webdocker') {
-            fetchData(`http://192.168.183.133:9001/docker/exist?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+            fetchData(`/docker/exist?id=${action.docker_id}&token=${info.user.token}`, function (success) {
                 setDockerStatus(success ? 1 : 0);
             });
-            fetchEndtime(`http://192.168.183.133:9001/docker/endtime?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+            fetchEndtime(`/docker/endtime?id=${action.docker_id}&token=${info.user.token}`, function (success) {
                 setEndtime(success ? success : null);
             });
-            fetchCname(`http://192.168.183.133:9001/docker/cname?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+            fetchCname(`/docker/cname?id=${action.docker_id}&token=${info.user.token}`, function (success) {
                 setCname(success ? success : null);
             });
         }
