@@ -38,7 +38,7 @@ export function Login() {
         setTimeout(() => {
             setIsButtonDisabled(false);
             setButtonText('验证邮箱');
-        }, 1000);
+        }, 60000);
 
         const endpoint = "mail/send";
         console.error(AUTH_ROOT+endpoint)

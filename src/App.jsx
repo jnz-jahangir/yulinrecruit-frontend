@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import {useNavigate, Navigate, useParams, useLocation, Outlet, useOutlet} from 'react-router-dom';
-import {Menu, Alert} from 'antd';
-import {NotificationOutlined, FileTextOutlined, CarryOutOutlined, FundOutlined, AimOutlined} from '@ant-design/icons';
+import {Menu, Alert, FloatButton} from 'antd';
+import {NotificationOutlined, FileTextOutlined, CarryOutOutlined, FundOutlined, AimOutlined, QuestionCircleOutlined, PlusOutlined} from '@ant-design/icons';
 
 import {License} from './page/License';
 import {Board} from './page/Board';
@@ -186,7 +186,12 @@ function AppShell() {
                 </Transition>
             </div>
             <Footer />
+            <>
+            <FloatButton icon={<PlusOutlined />} type="primary" style={{ insetInlineEnd: 24, insetBlockEnd: 96 }} tooltip={<div>加入招新群</div>} href="https://qm.qq.com/q/Au7GaTa0Yo"/>
+            <FloatButton icon={<QuestionCircleOutlined />} type="default" style={{ insetInlineEnd: 24 }} tooltip={<div>平台问题反馈</div>} href="https://qm.qq.com/q/pPBC1kFTKE"/>
+            </>
         </div>
+        
     );
 }
 

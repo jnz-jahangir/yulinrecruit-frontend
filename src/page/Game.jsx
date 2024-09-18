@@ -1,6 +1,6 @@
 import { Fragment, useMemo, useState, useEffect, useReducer, useRef } from 'react';
 import { useNavigate, unstable_usePrompt, useParams } from 'react-router-dom';
-import { Button, Empty, Tag, Alert, Input, Tooltip, Popover, Card, App, Popconfirm, Col, Row } from 'antd';
+import { Button, Empty, Tag, Alert, Input, Tooltip, Popover, Card, App, Popconfirm, Col, Row, ConfigProvider } from 'antd';
 import {
     PieChartFilled,
     SyncOutlined,
@@ -17,6 +17,7 @@ import {
     CarryOutOutlined,
     FileTextOutlined,
     FireOutlined, UserSwitchOutlined, FormOutlined, ArrowUpOutlined, ArrowDownOutlined,
+    CheckCircleOutlined, CloseCircleOutlined
 } from '@ant-design/icons';
 
 import { Reloader } from './GameLoading';
@@ -51,16 +52,35 @@ function LoginBanner() {
 }
 
 const card_untouched = {
-    backgroundColor: '#eeeeee',
+    header: { background: '#F5F5F5', },
+    body: { background: '#FAFAFA' },
+    title: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+    },
 };
 
 const card_passed = {
-    backgroundColor: '#56e32e',
+    header: { backgroundColor: '#dcf7ea', },
+    body: { backgroundColor: '#effdf6' },
+    title: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+    },
 };
+
+const card_docker = {
+    width: 500,
+    title: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+    },
+}
 
 function ChallengeAction({ action, ch, idx }) {
     /* eslint-disable react/jsx-no-target-blank */
     let info = useGameInfo();
+    let { message } = App.useApp();
 
     function report_click() {
         void fetch(`${SYBIL_ROOT}event?name=visit_action&tabid=${TABID}`, {
@@ -73,24 +93,191 @@ function ChallengeAction({ action, ch, idx }) {
         });
     }
 
+    function fetchData(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.success) {
+                        if ('message' in data) {
+                            message.success(data.message);
+                        }
+                        callback(true);
+                    } else {
+                        if ('message' in data) {
+                            message.error(data.message);
+                        }
+                        callback(false);
+                    }
+                } else {
+                    message.error("操作失败");
+                    callback(false);
+                }
+            }
+        };
+        xhr.onerror = function () {
+            message.error("网络错误");
+            callback(false);
+        };
+        xhr.send(null);
+    }
+
+    function fetchEndtime(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.success) {
+                        if ('message' in data) {
+                            message.success(data.message);
+                        }
+                        callback(data.endtime);
+                    } else {
+                        if ('message' in data) {
+                            message.error(data.message);
+                        }
+                        callback(false);
+                    }
+                } else {
+                    message.error("操作失败");
+                    callback(false);
+                }
+            }
+        };
+        xhr.onerror = function () {
+            message.error("网络错误");
+            callback(false);
+        };
+        xhr.send(null);
+    }
+
+    function fetchCname(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.success) {
+                        if ('message' in data) {
+                            message.success(data.message);
+                        }
+                        callback(data.cname);
+                    } else {
+                        if ('message' in data) {
+                            message.error(data.message);
+                        }
+                        callback(false);
+                    }
+                } else {
+                    message.error("操作失败");
+                    callback(false);
+                }
+            }
+        };
+        xhr.onerror = function () {
+            message.error("网络错误");
+            callback(false);
+        };
+        xhr.send(null);
+    }
+
+    const [dockerStatus, setDockerStatus] = useState(0);
+    const [endtime, setEndtime] = useState(null);
+    const [cname, setCname] = useState(null);
+
+    useEffect(() => {
+        if (action.type === 'webdocker') {
+            fetchData(`http://192.168.183.133:9001/docker/exist?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+                setDockerStatus(success ? 1 : 0);
+            });
+            fetchEndtime(`http://192.168.183.133:9001/docker/endtime?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+                setEndtime(success ? success : null);
+            });
+            fetchCname(`http://192.168.183.133:9001/docker/cname?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+                setCname(success ? success : null);
+            });
+        }
+    }, [action, info]);
+
+    const CountdownTimer = ({ targetTime }) => {
+        const [timeLeft, setTimeLeft] = useState(targetTime);
+
+        useEffect(() => {
+            const timerId = setTimeout(() => {
+                setTimeLeft(0);
+            }, 1000 * timeLeft);
+
+            const intervalId = setInterval(() => {
+                if (timeLeft > 0) {
+                    setTimeLeft(timeLeft - 1);
+                } else {
+                    clearInterval(intervalId);
+                }
+            }, 1000);
+
+            return () => {
+                clearTimeout(timerId);
+                clearInterval(intervalId);
+            };
+        }, [timeLeft]);
+        var minute = Math.floor(timeLeft / 60);
+        var second = timeLeft % 60;
+        if (timeLeft <= 0) {
+            setDockerStatus(0);
+        }
+        return (
+            <Tag color='orange'>剩余时间：{minute}分{second}秒</Tag>
+        );
+    };
+
+    const startContainer = () => {
+        fetchData(`/docker/start?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+            setDockerStatus(1);
+        });
+    };
+
+    const stopContainer = () => {
+        fetchData(`/docker/stop?token=${info.user.token}`, function (success) {
+            setDockerStatus(1);
+        });
+    };
+
+    const addContainerTime = () => {
+        fetchData(`/docker/addtime?token=${info.user.token}`, function (success) {
+            setEndtime(Math.floor(Date.now()/1000)+3600);
+        });
+    };
+
     if (action.type === 'webpage')
         return (<>
             你可以 <a onPointerDown={report_click} href={action.url.replace(/\{\{token}}/g, info.user.token)} target="_blank">访问{action.name}</a>
         </>);
-    else if (action.type === 'webdocker')
+    else if (action.type === 'webdocker') {
+        const leftTime = endtime - Math.floor(Date.now() / 1000);
         return (<>
-            你可以 <a onPointerDown={report_click} href={`https://${action.host}/docker-manager/start?${info.user.token}`} target="_blank">访问{action.name}</a>
-            {' '}
-            <Popover trigger="click" content={<div>
-                <p>本题为每名选手分配一个独立的后端环境，参见 <a href="#/info/faq">FAQ：关于 Web 题目环境</a></p>
+            <Card title='环境管理'
+                style={{ width: 500 }}
+                styles={card_docker}
+                bordered={true}
+                type="inner"
+                actions={[
+                    dockerStatus ? <Button type="primary" danger onClick={stopContainer}>销毁环境</Button> : <Button type="primary" onClick={startContainer}>开启环境</Button>,
+                    dockerStatus ? <Button href={`http://prob00-${cname}.recruit.yulinsec.cn/`} target="_blank">访问环境</Button> : <Button disabled>访问环境</Button>,
+                    dockerStatus ? <Button onClick={addContainerTime}>环境续期</Button> : <Button disabled>环境续期</Button>
+                ]}
+            >
+                <p>本题为每名选手分配一个独立的后端环境</p>
+                <p>在环境未到期时可以为环境续期</p>
                 <p>如果题目出现问题可以手动关闭环境，下次访问时将启动新的环境</p>
-                <Button block danger onClick={() => {
-                    window.open(`https://${action.host}/docker-manager/stop?${info.user.token}`);
-                }}>关闭环境</Button>
-            </div>}>
-                <Button size="small" style={{ marginLeft: '.5em' }}><CodepenOutlined />环境控制</Button>
-            </Popover>
-        </>);
+                <CountdownTimer targetTime={leftTime} />
+            </Card>
+        </>)
+    }
     else if (action.type === 'terminal')
         return (<>
             你可以 <a onPointerDown={report_click} href={WEB_TERMINAL_ADDR(action, info.user.token)} target="_blank">打开网页终端</a> 或者通过命令{' '}
@@ -105,8 +292,13 @@ function ChallengeAction({ action, ch, idx }) {
             return (<>
                 <Col span={8}>
                     <a href={action.url} target="_blank" style={{ cursor: 'pointer', textDecoration: 'none' }}>
-                        <Card style={card_untouched} type="inner" bordered={false} hoverable={true}>
-                            <div class="card-text">{action.name}</div>
+                        <Card type="inner" bordered={true} hoverable={true} title={action.name} styles={card_untouched}>
+                            {/* <div class="card-text">{action.name}</div> */}
+                            <p>{action.desc}</p>
+                            <div class="tag-style">
+                                <Tag>通过：{ch.flags[idx].passed_users_count}人</Tag>
+                                <Tag icon={<CloseCircleOutlined />} color="error">未通过</Tag>
+                            </div>
                         </Card>
                     </a>
                 </Col>
@@ -115,8 +307,13 @@ function ChallengeAction({ action, ch, idx }) {
             return (<>
                 <Col span={8}>
                     <a href={action.url} target="_blank" style={{ cursor: 'pointer', textDecoration: 'none' }}>
-                        <Card style={card_passed} type="inner" bordered={false} hoverable={true}>
-                            <div class="card-text">{action.name}</div>
+                        <Card type="inner" bordered={true} hoverable={true} title={action.name} styles={card_passed}>
+                            {/* <div class="card-text">{action.name}</div> */}
+                            <p>{action.desc}</p>
+                            <div class="tag-style">
+                                <Tag>通过：{ch.flags[idx].passed_users_count}人</Tag>
+                                <Tag icon={<CheckCircleOutlined />} color="success">已通过</Tag>
+                            </div>
                         </Card>
                     </a>
                 </Col>
@@ -271,8 +468,17 @@ function ChallengeBody({ ch }) {
             </Row>
             <br />
         </>);
-    }
-    else
+    } else if (data.actions.length != 0 && data.actions[0].type === "webdocker") {
+        return (<>
+            <TemplateStr name="challenge-desc">{data.desc}</TemplateStr>
+            <br />
+            {data.actions.map((action, idx) => (
+                <p>
+                    <ChallengeAction ch={ch} action={action} />
+                </p>
+            ))}
+        </>);
+    } else
         return (<>
             <TemplateStr name="challenge-desc">{data.desc}</TemplateStr>
             <br />
@@ -577,7 +783,7 @@ function PortalChallengeList({ list, active_key, set_active_key }) {
                                                 color={DetermineLevelColor(levelTag?.replace("+", "").replace("-", "").toUpperCase())}>{levelTag?.toUpperCase()}</Tag> : null
                                         ))}
                                     </span>
-                                    
+
                                     <CategoryBadge color={ch.category_color}>{ch.category}</CategoryBadge>
                                     <ChallengeIcon status={ch.status} /> {ch.title.replace(/(\[(?![>=]).+?\]|【[^】]+】)/g, '')}
                                     {ch.flags.length > 1 && <span className="portal-chall-caret"><CaretDownOutlined /></span>}
