@@ -93,6 +93,8 @@ function ChallengeAction({ action, ch, idx }) {
         });
     }
 
+    const [loading, setLoading] = useState(false);
+
     function fetchData(url, callback) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
@@ -227,29 +229,39 @@ function ChallengeAction({ action, ch, idx }) {
         }, [timeLeft]);
         var minute = Math.floor(timeLeft / 60);
         var second = timeLeft % 60;
-        if (timeLeft <= 0) {
-            setDockerStatus(0);
-        }
+        // if (timeLeft <= 0) {
+        //     setDockerStatus(0);
+        // }
         return (
             <Tag color='orange'>剩余时间：{minute}分{second}秒</Tag>
         );
     };
 
     const startContainer = () => {
+        setLoading(1);
         fetchData(`/docker/start?id=${action.docker_id}&token=${info.user.token}`, function (success) {
-            setDockerStatus(1);
+            setDockerStatus(success ? 1 : 0);
+            if(success) {
+                window.location.reload();
+            }
         });
     };
 
     const stopContainer = () => {
+        setLoading(1);
         fetchData(`/docker/stop?token=${info.user.token}`, function (success) {
-            setDockerStatus(1);
+            setDockerStatus(success? 0 : 1);
+            if(success) {
+                window.location.reload();
+            }
         });
     };
 
     const addContainerTime = () => {
         fetchData(`/docker/addtime?token=${info.user.token}`, function (success) {
-            setEndtime(Math.floor(Date.now()/1000)+3600);
+            if(success) {
+                setEndtime(Math.floor(Date.now()/1000)+3600);
+            }
         });
     };
 
@@ -260,13 +272,13 @@ function ChallengeAction({ action, ch, idx }) {
     else if (action.type === 'webdocker') {
         const leftTime = endtime - Math.floor(Date.now() / 1000);
         return (<>
-            <Card title='环境管理'
+            <Card title={action.name}
                 style={{ width: 500 }}
                 styles={card_docker}
                 bordered={true}
                 type="inner"
                 actions={[
-                    dockerStatus ? <Button type="primary" danger onClick={stopContainer}>销毁环境</Button> : <Button type="primary" onClick={startContainer}>开启环境</Button>,
+                    dockerStatus ? <Button type="primary" danger onClick={stopContainer} loading={loading}>销毁环境</Button> : <Button type="primary" onClick={startContainer} loading={loading}>开启环境</Button>,
                     dockerStatus ? <Button href={`http://prob00-${cname}.recruit.yulinsec.cn/`} target="_blank">访问环境</Button> : <Button disabled>访问环境</Button>,
                     dockerStatus ? <Button onClick={addContainerTime}>环境续期</Button> : <Button disabled>环境续期</Button>
                 ]}
@@ -293,7 +305,6 @@ function ChallengeAction({ action, ch, idx }) {
                 <Col span={8}>
                     <a href={action.url} target="_blank" style={{ cursor: 'pointer', textDecoration: 'none' }}>
                         <Card type="inner" bordered={true} hoverable={true} title={action.name} styles={card_untouched}>
-                            {/* <div class="card-text">{action.name}</div> */}
                             <p>{action.desc}</p>
                             <div class="tag-style">
                                 <Tag>通过：{ch.flags[idx].passed_users_count}人</Tag>
@@ -308,7 +319,6 @@ function ChallengeAction({ action, ch, idx }) {
                 <Col span={8}>
                     <a href={action.url} target="_blank" style={{ cursor: 'pointer', textDecoration: 'none' }}>
                         <Card type="inner" bordered={true} hoverable={true} title={action.name} styles={card_passed}>
-                            {/* <div class="card-text">{action.name}</div> */}
                             <p>{action.desc}</p>
                             <div class="tag-style">
                                 <Tag>通过：{ch.flags[idx].passed_users_count}人</Tag>

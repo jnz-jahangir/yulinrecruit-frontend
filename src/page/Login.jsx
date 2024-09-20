@@ -106,7 +106,7 @@ export function Login() {
         <div className="slim-container">
             <Alert showIcon message={<b>校外选手注意事项</b>} description={<>
                 <p>
-                    我们允许校外选手通过邮箱或 OAuth 登录一同参与比赛。
+                    我们允许校外选手通过邮箱登录一同参与比赛。
                     校外选手不参与招新，但可以正常解答题目，分数会出现在总排行榜上。
                 </p>
                 <p>
@@ -173,7 +173,7 @@ export function Login() {
                     本招新赛不允许选手注册多个账号，校内选手务必全程使用<a href="http://mail.std.uestc.edu.cn/">电子科技大学学生邮箱</a>登录，否则视为放弃招新资格。
                 </p>
                 <p>
-                    本招新赛只针对电子科技大学<strong>2023、2024</strong>级在校本科生。
+                    本招新赛只针对电子科技大学<strong>2023、2024</strong>级在校本科生。研究生同学请直接联系负责人面试。
                     我们允许其他年级同学通过<a href="http://mail.std.uestc.edu.cn/">电子科技大学学生邮箱</a>登录参赛，但不参与最终招新面试。
                 </p>
             
