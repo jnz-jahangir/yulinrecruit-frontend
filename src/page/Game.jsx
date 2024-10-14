@@ -106,69 +106,13 @@ function ChallengeAction({ action, ch, idx }) {
                         if ('message' in data) {
                             message.success(data.message);
                         }
-                        callback(true);
-                    } else {
-                        if ('message' in data) {
-                            message.error(data.message);
+                        if ('endtime' in data) {
+                            callback(data.endtime)
                         }
-                        callback(false);
-                    }
-                } else {
-                    message.error("操作失败");
-                    callback(false);
-                }
-            }
-        };
-        xhr.onerror = function () {
-            message.error("网络错误");
-            callback(false);
-        };
-        xhr.send(null);
-    }
-
-    function fetchEndtime(url, callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    var data = JSON.parse(xhr.responseText);
-                    if (data.success) {
-                        if ('message' in data) {
-                            message.success(data.message);
+                        else if ('cname' in data) { 
+                            callback(data.cname)
                         }
-                        callback(data.endtime);
-                    } else {
-                        if ('message' in data) {
-                            message.error(data.message);
-                        }
-                        callback(false);
-                    }
-                } else {
-                    message.error("操作失败");
-                    callback(false);
-                }
-            }
-        };
-        xhr.onerror = function () {
-            message.error("网络错误");
-            callback(false);
-        };
-        xhr.send(null);
-    }
-
-    function fetchCname(url, callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    var data = JSON.parse(xhr.responseText);
-                    if (data.success) {
-                        if ('message' in data) {
-                            message.success(data.message);
-                        }
-                        callback(data.cname);
+                        else callback(true);
                     } else {
                         if ('message' in data) {
                             message.error(data.message);
@@ -193,14 +137,14 @@ function ChallengeAction({ action, ch, idx }) {
     const [cname, setCname] = useState(null);
 
     useEffect(() => {
-        if (action.type === 'webdocker') {
+        if (action.type === 'webdocker' || action.type === 'pwndocker') {
             fetchData(`/docker/exist?id=${action.docker_id}&token=${info.user.token}`, function (success) {
                 setDockerStatus(success ? 1 : 0);
             });
-            fetchEndtime(`/docker/endtime?id=${action.docker_id}&token=${info.user.token}`, function (success) {
-                setEndtime(success ? success : null);
+            fetchData(`/docker/endtime?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+                setEndtime(success ? success : 0);
             });
-            fetchCname(`/docker/cname?id=${action.docker_id}&token=${info.user.token}`, function (success) {
+            fetchData(`/docker/cname?id=${action.docker_id}&token=${info.user.token}`, function (success) {
                 setCname(success ? success : null);
             });
         }
@@ -229,9 +173,8 @@ function ChallengeAction({ action, ch, idx }) {
         }, [timeLeft]);
         var minute = Math.floor(timeLeft / 60);
         var second = timeLeft % 60;
-        // if (timeLeft <= 0) {
-        //     setDockerStatus(0);
-        // }
+        if(minute<0)minute=0;
+        if(second<0)second=0;
         return (
             <Tag color='orange'>剩余时间：{minute}分{second}秒</Tag>
         );
@@ -272,27 +215,26 @@ function ChallengeAction({ action, ch, idx }) {
     else if (action.type === 'webdocker') {
         const leftTime = endtime - Math.floor(Date.now() / 1000);
         return (<>
-            <Card title={action.name}
-                style={{ width: 500 }}
-                styles={card_docker}
-                bordered={true}
-                type="inner"
-                actions={[
-                    dockerStatus ? <Button type="primary" danger onClick={stopContainer} loading={loading}>销毁环境</Button> : <Button type="primary" onClick={startContainer} loading={loading}>开启环境</Button>,
-                    dockerStatus ? <Button href={`http://prob00-${cname}.recruit.yulinsec.cn/`} target="_blank">访问环境</Button> : <Button disabled>访问环境</Button>,
-                    dockerStatus ? <Button onClick={addContainerTime}>环境续期</Button> : <Button disabled>环境续期</Button>
-                ]}
-            >
-                <p>本题为每名选手分配一个独立的后端环境</p>
-                <p>在环境未到期时可以为环境续期</p>
-                <p>如果题目出现问题可以手动关闭环境，下次访问时将启动新的环境</p>
-                <CountdownTimer targetTime={leftTime} />
-            </Card>
+            <Col span={12}>
+                <Card title={action.name}
+                    styles={card_docker}
+                    bordered={true}
+                    type="inner"
+                    actions={[
+                        dockerStatus ? <Button type="primary" danger onClick={stopContainer} loading={loading}>销毁环境</Button> : <Button type="primary" onClick={startContainer} loading={loading}>开启环境</Button>,
+                        dockerStatus ? <Button href={`http://prob00-${cname}.recruit.yulinsec.cn/`} target="_blank">访问环境</Button> : <Button disabled>访问环境</Button>,
+                        dockerStatus ? <Button onClick={addContainerTime}>环境续期</Button> : <Button disabled>环境续期</Button>
+                    ]}
+                >
+                    <pre>{action.desc}</pre>
+                    <CountdownTimer targetTime={leftTime} />
+                </Card>
+            </Col>
         </>)
     }
     else if (action.type === 'terminal')
         return (<>
-            你可以 <a onPointerDown={report_click} href={WEB_TERMINAL_ADDR(action, info.user.token)} target="_blank">打开网页终端</a> 或者通过命令{' '}
+            你可以通过命令{' '}
             <code>nc {action.host} {action.port}</code> 连接到{action.name}
         </>);
     else if (action.type === 'attachment')
@@ -328,6 +270,27 @@ function ChallengeAction({ action, ch, idx }) {
                     </a>
                 </Col>
             </>);
+    else if (action.type === 'pwndocker') {
+        const leftTime = endtime - Math.floor(Date.now() / 1000);
+        return (<>
+            <Col span={12}>
+                <Card title={action.name}
+                    styles={card_docker}
+                    bordered={true}
+                    type="inner"
+                    actions={[
+                        dockerStatus ? <Button type="primary" danger onClick={stopContainer} loading={loading}>销毁环境</Button> : <Button type="primary" onClick={startContainer} loading={loading}>开启环境</Button>,
+                        dockerStatus ? <Button onClick={addContainerTime}>环境续期</Button> : <Button disabled>环境续期</Button>,
+                        <Button href={action.attachment}>下载附件</Button>
+                    ]}
+                >
+                    <pre>{action.desc}</pre>
+                    {dockerStatus ? <h4>使用命令连接到题目：nc {action.host} {cname}</h4> : <h4></h4>}
+                    <CountdownTimer targetTime={leftTime} />
+                </Card>
+            </Col>
+        </>)
+    }
 }
 
 function TouchedUsersTable({ ch }) {
@@ -478,15 +441,16 @@ function ChallengeBody({ ch }) {
             </Row>
             <br />
         </>);
-    } else if (data.actions.length != 0 && data.actions[0].type === "webdocker") {
+    } else if (data.actions.length != 0 && (data.actions[0].type === "webdocker" || data.actions[0].type === "pwndocker")) {
         return (<>
             <TemplateStr name="challenge-desc">{data.desc}</TemplateStr>
             <br />
-            {data.actions.map((action, idx) => (
-                <p>
-                    <ChallengeAction ch={ch} action={action} />
-                </p>
-            ))}
+            <Row gutter={[32, 20]}>
+                {data.actions.map((action, idx) => (
+                        <ChallengeAction ch={ch} action={action} />
+                ))}
+            </Row>
+            <br />
         </>);
     } else
         return (<>
@@ -754,6 +718,8 @@ function DetermineLevelColor(level) {
             return 'red';
         case 'MID':
             return 'purple';
+        case 'MIX':
+            return 'black';
         default:
             return 'red';
     }
@@ -788,7 +754,7 @@ function PortalChallengeList({ list, active_key, set_active_key }) {
                             >
                                 <div className="portal-chall-col-title">
                                     <span className="portal-chall-level-badge">
-                                        {ch.title.match(/(BASIC|EASY|BABY|HARD|MID)[+-]?/ig)?.map((levelTag, idx) => (
+                                        {ch.title.match(/(BASIC|EASY|BABY|HARD|MID|MIX)[+-]?/ig)?.map((levelTag, idx) => (
                                             idx === 0 ? <Tag
                                                 color={DetermineLevelColor(levelTag?.replace("+", "").replace("-", "").toUpperCase())}>{levelTag?.toUpperCase()}</Tag> : null
                                         ))}

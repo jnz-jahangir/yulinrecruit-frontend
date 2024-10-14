@@ -17,13 +17,13 @@ export function WEB_TERMINAL_ADDR(action, token) {
 
 export const CONTEST_LICENSE = (<>
     <p>
-        （比赛内容的授权许可）
+        比赛完全结束后，本比赛所有题目都采用<a href="https://creativecommons.org/licenses/by-nc/4.0/" />协议许可。
     </p>
 </>);
 
 export const WRITEUP_INSTRUCTION = (<>
     <p>
-        （Writeup 提交说明）
+        
     </p>
 </>);
 
